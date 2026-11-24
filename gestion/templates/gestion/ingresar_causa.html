@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDFA - Ingresar Causa</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f1f2f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #24476b;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .usuario {
+            text-align: right;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .contenedor {
+            background-color: white;
+            border: 1px solid #d0d4d9;
+            padding: 25px;
+        }
+
+        h2 {
+            color: #24476b;
+            font-size: 22px;
+            margin-top: 0;
+            border-bottom: 2px solid #24476b;
+            padding-bottom: 12px;
+        }
+
+        h3 {
+            background-color: #e9edf1;
+            color: #24476b;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 25px;
+        }
+
+        .grupo {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3979ad;
+        }
+
+        input[readonly] {
+            background-color: #f1f2f4;
+            cursor: not-allowed;
+        }
+
+        .estado-consulta {
+            font-size: 12px;
+            min-height: 16px;
+        }
+
+        .exito {
+            color: #27813b;
+        }
+
+        .error {
+            color: #c0392b;
+        }
+
+        .informacion {
+            color: #3979ad;
+        }
+
+        .materias-contenedor {
+            max-width: 650px;
+        }
+
+        .desplegable {
+            position: relative;
+        }
+
+        .boton-desplegable {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+            background-color: white;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .opciones-materias {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #bfc6ce;
+            z-index: 10;
+            max-height: 280px;
+            overflow-y: auto;
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.12);
+        }
+
+        .opciones-materias.visible {
+            display: block;
+        }
+
+        .opcion-materia {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px;
+            border-bottom: 1px solid #e5e8eb;
+            font-size: 13px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .opcion-materia:hover {
+            background-color: #f1f5f8;
+        }
+
+        .opcion-materia input {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .ayuda-materias {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .resumen-materias {
+            margin-top: 12px;
+            padding: 12px;
+            background-color: #f4f6f9;
+            border: 1px solid #d9dee5;
+            font-size: 13px;
+            min-height: 40px;
+        }
+
+        .mensaje {
+            padding: 11px;
+            margin-bottom: 12px;
+            background-color: #f8eeee;
+            color: #a93226;
+            border: 1px solid #e6caca;
+            font-size: 13px;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .boton {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 3px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .crear {
+            background-color: #398447;
+        }
+
+        .volver {
+            background-color: #3979ad;
+        }
+
+        footer {
+            text-align: center;
+            padding: 18px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        @media (max-width: 650px) {
+            .grupo {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .usuario {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sistema de Gestion de Causas MEDFA</h1>
+
+        <div class="usuario">
+            <strong>{{ usuario.nombres }} {{ usuario.apellidos }}</strong><br>
+            {{ usuario.perfil.nombre }}
+        </div>
+    </header>
+
+    <main>
+        <section class="contenedor">
+            <h2>Ingreso de Nueva Causa</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="mensaje">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" id="formularioCausa">
+                {% csrf_token %}
+
+                <h3>Datos del Solicitante</h3>
+
+                <div class="grupo">
+                    <div class="campo">
+                        <label for="rut_solicitante">RUT</label>
+                        <input type="text" id="rut_solicitante" name="rut_solicitante" required>
+                        <span id="estado_solicitante" class="estado-consulta" aria-live="polite"></span>
+                    </div>
+
+                    <div class="campo">
+                        <label for="nombre_solicitante">Nombre completo</label>
+                        <input type="text" id="nombre_solicitante" name="nombre_solicitante" readonly required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="fecha_nacimiento_solicitante">Fecha de nacimiento</label>
+                        <input type="date" id="fecha_nacimiento_solicitante" readonly required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="direccion_solicitante">Direccion</label>
+                        <input type="text" id="direccion_solicitante" name="direccion_solicitante" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="telefono_solicitante">Telefono</label>
+                        <input type="text" id="telefono_solicitante" name="telefono_solicitante" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="correo_solicitante">Correo electronico</label>
+                        <input type="email" id="correo_solicitante" name="correo_solicitante" required>
+                    </div>
+                </div>
+
+                <h3>Datos del Solicitado</h3>
+
+                <div class="grupo">
+                    <div class="campo">
+                        <label for="rut_solicitado">RUT</label>
+                        <input type="text" id="rut_solicitado" name="rut_solicitado" required>
+                        <span id="estado_solicitado" class="estado-consulta" aria-live="polite"></span>
+                    </div>
+
+                    <div class="campo">
+                        <label for="nombre_solicitado">Nombre completo</label>
+                        <input type="text" id="nombre_solicitado" name="nombre_solicitado" readonly required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="fecha_nacimiento_solicitado">Fecha de nacimiento</label>
+                        <input type="date" id="fecha_nacimiento_solicitado" readonly required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="direccion_solicitado">Direccion</label>
+                        <input type="text" id="direccion_solicitado" name="direccion_solicitado" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="telefono_solicitado">Telefono</label>
+                        <input type="text" id="telefono_solicitado" name="telefono_solicitado" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="correo_solicitado">Correo electronico</label>
+                        <input type="email" id="correo_solicitado" name="correo_solicitado" required>
+                    </div>
+                </div>
+
+                <h3>Materias de la Causa</h3>
+
+                <div class="materias-contenedor">
+                    <div class="campo">
+                        <label>Seleccionar materias</label>
+
+                        <div class="desplegable">
+                            <button type="button" class="boton-desplegable" id="botonMaterias">
+                                Seleccionar materias
+                            </button>
+
+                            <div class="opciones-materias" id="opcionesMaterias">
+                                {% for materia in materias %}
+                                    <label class="opcion-materia">
+                                        <input
+                                            type="checkbox"
+                                            name="materias"
+                                            value="{{ materia.id }}"
+                                            data-nombre="{{ materia.tipo }}"
+                                        >
+                                        {{ materia.tipo }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="ayuda-materias">
+                            Puedes seleccionar varias materias, respetando las incompatibilidades entre materias de una misma familia.
+                        </div>
+
+                        <div class="resumen-materias" id="resumenMaterias">
+                            No has seleccionado materias.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acciones">
+                    <button type="submit" class="boton crear">Crear Causa</button>
+                    <a href="{% url 'panel' %}" class="boton volver">Volver</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        Sistema de Gestion de Causas MEDFA
+    </footer>
+
+    <script>
+        const urlConsulta = "{% url 'consultar_participante' %}";
+
+        function configurarConsulta(sufijo) {
+            const campoRut = document.getElementById("rut_" + sufijo);
+            const campoNombre = document.getElementById("nombre_" + sufijo);
+            const campoFecha = document.getElementById("fecha_nacimiento_" + sufijo);
+            const estado = document.getElementById("estado_" + sufijo);
+
+            let consultaActual = 0;
+
+            campoRut.addEventListener("input", function () {
+                consultaActual++;
+                campoNombre.value = "";
+                campoFecha.value = "";
+                estado.textContent = "";
+                estado.className = "estado-consulta";
+            });
+
+            campoRut.addEventListener("blur", async function () {
+                const rut = campoRut.value.trim();
+
+                campoNombre.value = "";
+                campoFecha.value = "";
+
+                if (!rut) {
+                    estado.textContent = "";
+                    return;
+                }
+
+                const identificador = ++consultaActual;
+
+                estado.textContent = "Consultando Registro Civil...";
+                estado.className = "estado-consulta informacion";
+
+                try {
+                    const respuesta = await fetch(
+                        urlConsulta + "?rut=" + encodeURIComponent(rut)
+                    );
+
+                    const datos = await respuesta.json();
+
+                    if (identificador !== consultaActual) {
+                        return;
+                    }
+
+                    if (!respuesta.ok) {
+                        throw new Error("No fue posible realizar la consulta.");
+                    }
+
+                    if (datos.encontrado) {
+                        campoNombre.value = datos.nombre_completo;
+                        campoFecha.value = datos.fecha_nacimiento;
+                        estado.textContent = "Antecedentes encontrados correctamente.";
+                        estado.className = "estado-consulta exito";
+                    } else {
+                        estado.textContent = datos.mensaje;
+                        estado.className = "estado-consulta error";
+                    }
+                } catch (error) {
+                    if (identificador !== consultaActual) {
+                        return;
+                    }
+
+                    estado.textContent = "Error al consultar los antecedentes.";
+                    estado.className = "estado-consulta error";
+                }
+            });
+        }
+
+        configurarConsulta("solicitante");
+        configurarConsulta("solicitado");
+
+        const botonMaterias = document.getElementById("botonMaterias");
+        const opcionesMaterias = document.getElementById("opcionesMaterias");
+        const resumenMaterias = document.getElementById("resumenMaterias");
+        const formulario = document.getElementById("formularioCausa");
+
+        const materiasPension = [
+            "Pensión de alimentos",
+            "Pensión de alimentos, aumento",
+            "Pensión de alimentos, rebaja",
+            "Pensión de alimentos, cesacion"
+        ];
+
+        const materiasCuidado = [
+            "Cuidado personal",
+            "Cuidado personal del niño, modificacion"
+        ];
+
+        botonMaterias.addEventListener("click", function () {
+            opcionesMaterias.classList.toggle("visible");
+        });
+
+        document.addEventListener("click", function (evento) {
+            if (!evento.target.closest(".desplegable")) {
+                opcionesMaterias.classList.remove("visible");
+            }
+        });
+
+        function obtenerSeleccionadas() {
+            return Array.from(
+                document.querySelectorAll('input[name="materias"]:checked')
+            );
+        }
+
+        function validarMaterias() {
+            const seleccionadas = obtenerSeleccionadas();
+            const nombres = seleccionadas.map(campo => campo.dataset.nombre);
+
+            const pensionSeleccionadas = nombres.filter(
+                nombre => materiasPension.includes(nombre)
+            );
+
+            const cuidadoSeleccionadas = nombres.filter(
+                nombre => materiasCuidado.includes(nombre)
+            );
+
+            if (pensionSeleccionadas.length > 1) {
+                return "No puedes combinar Pension de alimentos con sus variantes de aumento, rebaja o cesacion. Selecciona solamente una.";
+            }
+
+            if (cuidadoSeleccionadas.length > 1) {
+                return "No puedes combinar Cuidado personal con Cuidado personal del niño, modificacion. Selecciona solamente una.";
+            }
+
+            return "";
+        }
+
+        function actualizarResumen() {
+            const seleccionadas = obtenerSeleccionadas();
+            const nombres = seleccionadas.map(campo => campo.dataset.nombre);
+
+            botonMaterias.textContent = seleccionadas.length > 0
+                ? seleccionadas.length + " materia(s) seleccionada(s)"
+                : "Seleccionar materias";
+
+            resumenMaterias.textContent = nombres.length > 0
+                ? nombres.join(" | ")
+                : "No has seleccionado materias.";
+        }
+
+        document.querySelectorAll('input[name="materias"]').forEach(campo => {
+            campo.addEventListener("change", function () {
+                const error = validarMaterias();
+
+                if (error) {
+                    campo.checked = false;
+                    alert(error);
+                }
+
+                actualizarResumen();
+            });
+        });
+
+        formulario.addEventListener("submit", function (evento) {
+            const seleccionadas = obtenerSeleccionadas();
+            const error = validarMaterias();
+
+            if (seleccionadas.length === 0) {
+                evento.preventDefault();
+                alert("Debes seleccionar al menos una materia para la causa.");
+                opcionesMaterias.classList.add("visible");
+                return;
+            }
+
+            if (error) {
+                evento.preventDefault();
+                alert(error);
+                return;
+            }
+        });
+
+        actualizarResumen();
+    </script>
+
+</body>
+</html>

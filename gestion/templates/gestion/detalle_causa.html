@@ -1,0 +1,1214 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de causa - MEDFA</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        header {
+            background-color: #24476b;
+            color: white;
+            padding: 18px 30px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .encabezado h2 {
+            margin: 0;
+            color: #24476b;
+        }
+
+        .estado {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 10px 16px;
+            background-color: #24476b;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .boton:hover {
+            background-color: #19334d;
+        }
+
+        .pestanas {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #e1e6eb;
+            border: 1px solid #d5d5d5;
+            border-radius: 5px 5px 0 0;
+            overflow: hidden;
+        }
+
+        .pestana {
+            padding: 14px 22px;
+            border: none;
+            border-right: 1px solid #d5d5d5;
+            background-color: #e1e6eb;
+            color: #24476b;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .pestana:hover {
+            background-color: #d1dbe5;
+        }
+
+        .pestana.activa {
+            background-color: white;
+            color: #24476b;
+        }
+
+        .contenido-pestana {
+            display: none;
+            background-color: white;
+            border: 1px solid #d5d5d5;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .contenido-pestana.activo {
+            display: block;
+        }
+
+        .contenido-pestana h3 {
+            margin-top: 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ddd;
+            color: #24476b;
+        }
+
+        .datos {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .dato strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .dato span {
+            font-size: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #e8edf2;
+            color: #24476b;
+        }
+
+        .vacio {
+            color: #777;
+            font-style: italic;
+        }
+
+        .mensaje {
+            padding: 11px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            border: 1px solid #ddd;
+        }
+
+        .mensaje.success {
+            background-color: #edf7ed;
+            color: #27813b;
+            border-color: #c8e6c9;
+        }
+
+        .mensaje.error {
+            background-color: #f8eeee;
+            color: #a93226;
+            border-color: #e6caca;
+        }
+
+        .formulario {
+            max-width: 650px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-bottom: 18px;
+        }
+
+        .campo label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .campo input,
+        .campo select {
+            padding: 11px;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .selector-materias {
+            position: relative;
+            width: 100%;
+        }
+
+        .boton-selector {
+            width: 100%;
+            min-height: 42px;
+            padding: 12px;
+            background-color: white;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+            color: #555;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .boton-selector::after {
+            content: "▼";
+            float: right;
+            color: #555;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+
+        .opciones-materias {
+            display: none;
+            position: absolute;
+            top: calc(100% + 2px);
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .opciones-materias.abierto {
+            display: block;
+        }
+
+        .opcion-materia {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            color: #333;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .opcion-materia:hover {
+            background-color: #edf2f6;
+        }
+
+        .opcion-materia.seleccionada {
+            background-color: #dce8f2;
+            color: #24476b;
+            font-weight: bold;
+        }
+
+        .informacion {
+            background-color: #f1f5f8;
+            border: 1px solid #d9dee5;
+            padding: 13px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .boton-confirmar {
+            background-color: #398447;
+        }
+
+        .boton-confirmar:hover {
+            background-color: #286535;
+        }
+
+        .estado-sesion {
+            font-weight: bold;
+        }
+
+        .estado-realizada {
+            color: #27813b;
+        }
+
+        .estado-pendiente {
+            color: #9a6b13;
+        }
+
+        .boton-actualizar {
+            padding: 5px 10px;
+            border: 1px solid #24476b;
+            border-radius: 3px;
+            background-color: white;
+            color: #24476b;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .boton-actualizar:hover {
+            background-color: #e8edf2;
+        }
+
+        .formulario-actualizar {
+            display: none;
+            min-width: 230px;
+            padding: 10px 0;
+        }
+
+        .formulario-actualizar.abierto {
+            display: block;
+        }
+
+        .formulario-actualizar select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+        }
+
+        .opcion-intercambiar {
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+
+        .opcion-intercambiar input {
+            margin-top: 2px;
+        }
+
+        .boton-guardar-cambio {
+            padding: 7px 10px;
+            background-color: #398447;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .asistencia-participante {
+            margin-top: 18px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+
+        .asistencia-participante h4 {
+            margin: 0 0 10px;
+            color: #24476b;
+        }
+
+        .asistencia-participante form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .asistencia-participante select {
+            padding: 9px;
+            border: 1px solid #bfc6ce;
+            border-radius: 3px;
+        }
+
+        .documento {
+            max-width: 800px;
+            margin: 25px auto;
+            padding: 45px 50px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            color: #222;
+        }
+
+        .documento-encabezado {
+            text-align: center;
+            border-bottom: 2px solid #24476b;
+            padding-bottom: 18px;
+            margin-bottom: 25px;
+        }
+
+        .documento-encabezado h2 {
+            margin: 0 0 8px;
+            color: #24476b;
+            font-size: 19px;
+        }
+
+        .documento-encabezado p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .documento h3 {
+            text-align: center;
+            color: #333;
+            border: none;
+            margin: 20px 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .documento p {
+            font-size: 13px;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        .documento-datos {
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .documento-datos td {
+            padding: 9px;
+            font-size: 12px;
+        }
+
+        .documento-datos td:first-child {
+            width: 35%;
+            font-weight: bold;
+            background-color: #f3f5f7;
+        }
+
+        .documento-firma {
+            display: flex;
+            justify-content: space-around;
+            gap: 30px;
+            margin-top: 65px;
+        }
+
+        .firma {
+            width: 45%;
+            text-align: center;
+            padding-top: 10px;
+            border-top: 1px solid #555;
+            font-size: 12px;
+        }
+
+        .documento-pie {
+            margin-top: 35px;
+            padding-top: 12px;
+            border-top: 1px solid #ddd;
+            color: #777;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .documento-etiqueta {
+            display: inline-block;
+            padding: 5px 9px;
+            background-color: #e8edf2;
+            color: #24476b;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 650px) {
+            .datos {
+                grid-template-columns: 1fr;
+            }
+
+            .contenido-pestana {
+                overflow-x: auto;
+            }
+
+            .pestana {
+                flex: 1 1 45%;
+            }
+
+            .documento {
+                padding: 25px 18px;
+            }
+
+            .documento-firma {
+                flex-direction: column;
+            }
+
+            .firma {
+                width: 100%;
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>MEDFA - Gestion de causas</h1>
+</header>
+
+<main>
+
+    <div class="encabezado">
+        <div>
+            <h2>Ficha de causa NIC {{ causa.nic }}</h2>
+            <div class="estado">
+                <strong>Estado de la causa:</strong> {{ causa.estado }}
+            </div>
+        </div>
+
+        <a href="{% url 'causas' %}" class="boton">Volver a consultar causas</a>
+    </div>
+
+    {% if not causa_abierta %}
+        <div class="informacion">
+            <strong>Causa cerrada:</strong>
+            Esta causa no permite modificaciones.
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mensaje {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <nav class="pestanas">
+        <button type="button" class="pestana activa" data-pestana="datos-generales">
+            Datos generales
+        </button>
+
+        <button type="button" class="pestana" data-pestana="vif">
+            VIF
+        </button>
+
+        <button type="button" class="pestana" data-pestana="agendamientos">
+            Agendamientos
+        </button>
+
+        <button type="button" class="pestana" data-pestana="documentos">
+            Documentos
+        </button>
+    </nav>
+
+    <section id="datos-generales" class="contenido-pestana activo">
+        <h3>Datos generales</h3>
+
+        <div class="datos">
+            <div class="dato">
+                <strong>NIC</strong>
+                <span>{{ causa.nic }}</span>
+            </div>
+
+            <div class="dato">
+                <strong>Fecha de ingreso</strong>
+                <span>{{ causa.fecha_ingreso|date:"d/m/Y" }}</span>
+            </div>
+
+            <div class="dato">
+                <strong>Estado de la causa</strong>
+                <span>{{ causa.estado }}</span>
+            </div>
+
+            <div class="dato">
+                <strong>Fecha de cierre</strong>
+                <span>
+                    {% if causa.fecha_cierre %}
+                        {{ causa.fecha_cierre|date:"d/m/Y" }}
+                    {% else %}
+                        No registrada
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="dato">
+                <strong>Extension (dias)</strong>
+                <span>
+                    {% if causa.fecha_extension != None %}
+                        {{ causa.fecha_extension }}
+                    {% else %}
+                        No registrada
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 30px;">Participantes</h3>
+
+        {% if participantes_causa %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>RUT</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Telefono</th>
+                        <th>Correo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for relacion in participantes_causa %}
+                        <tr>
+                            <td>{{ relacion.participante.rut }}</td>
+                            <td>
+                                {{ relacion.participante.nombre }}
+                                {{ relacion.participante.apellido }}
+                            </td>
+                            <td>{{ relacion.rol }}</td>
+                            <td>{{ relacion.participante.telefono }}</td>
+                            <td>{{ relacion.participante.correo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="vacio">No hay participantes registrados.</p>
+        {% endif %}
+
+        <h3 style="margin-top: 30px;">Materias de la causa</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Origen</th>
+                    <th>Materia</th>
+                    <th>Solicitante</th>
+                    <th>Solicitado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for relacion in materias_causa %}
+                    <tr>
+                        <td>INGRESADAS EN EL CENTRO DE MEDIACIÓN</td>
+                        <td>{{ relacion.materia.tipo }}</td>
+                        <td>
+                            {% for participante in participantes_causa %}
+                                {% if participante.rol == "Solicitante" %}
+                                    {{ participante.participante.nombre }}
+                                    {{ participante.participante.apellido }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for participante in participantes_causa %}
+                                {% if participante.rol == "Solicitado" %}
+                                    {{ participante.participante.nombre }}
+                                    {{ participante.participante.apellido }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if causa_abierta and usuario.perfil.nombre == "Asistente Administrativo" %}
+                                <button
+                                    type="button"
+                                    class="boton-actualizar"
+                                    data-formulario="formulario-materia-{{ relacion.materia_id }}"
+                                    title="Actualizar materia"
+                                >↻</button>
+
+                                <form
+                                    method="post"
+                                    class="formulario-actualizar"
+                                    id="formulario-materia-{{ relacion.materia_id }}"
+                                >
+                                    {% csrf_token %}
+                                    <input type="hidden" name="accion" value="actualizar_materia">
+                                    <input type="hidden" name="materia_actual" value="{{ relacion.materia_id }}">
+
+                                    <select name="materia_nueva" required>
+                                        {% for materia in materias_disponibles %}
+                                            <option
+                                                value="{{ materia.id }}"
+                                                {% if materia.id == relacion.materia_id %}selected{% endif %}
+                                            >
+                                                {{ materia.tipo }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+
+                                    <label class="opcion-intercambiar">
+                                        <input type="checkbox" name="intercambiar_partes" value="1">
+                                        Intercambiar solicitante y solicitado
+                                    </label>
+
+                                    <button type="submit" class="boton-guardar-cambio">
+                                        Guardar cambios
+                                    </button>
+                                </form>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="vacio">No hay materias registradas.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if causa_abierta and usuario.perfil.nombre == "Asistente Administrativo" %}
+            <h3 style="margin-top: 30px;">Administrar materias</h3>
+
+            <form method="post" class="formulario" id="formulario-materias">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="guardar_materias">
+                <div id="materias-seleccionadas"></div>
+
+                <div class="campo">
+                    <label>Seleccionar materias</label>
+
+                    <div class="selector-materias">
+                        <button
+                            type="button"
+                            class="boton-selector"
+                            id="boton-selector-materias"
+                            aria-expanded="false"
+                        >
+                            Elija entre las opciones
+                        </button>
+
+                        <div class="opciones-materias" id="opciones-materias">
+                            {% for materia in materias_disponibles %}
+                                <button
+                                    type="button"
+                                    class="opcion-materia {% if materia.id in ids_materias_causa %}seleccionada{% endif %}"
+                                    data-value="{{ materia.id }}"
+                                    data-label="{{ materia.tipo }}"
+                                    aria-pressed="{% if materia.id in ids_materias_causa %}true{% else %}false{% endif %}"
+                                >
+                                    {{ materia.tipo }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="boton boton-confirmar">
+                    Guardar materias
+                </button>
+            </form>
+        {% endif %}
+    </section>
+
+    <section id="vif" class="contenido-pestana">
+        <h3>VIF</h3>
+        <p class="vacio">Seccion pendiente de implementar.</p>
+    </section>
+
+    <section id="agendamientos" class="contenido-pestana">
+        <h3>Agendamientos de la causa</h3>
+
+        <div class="informacion">
+            <strong>Duracion de cada mediacion:</strong> 1 hora y 30 minutos.<br>
+            <strong>Dias disponibles:</strong> lunes a viernes.<br>
+            <strong>Horario de atencion:</strong> 09:00 a 17:00 horas.
+        </div>
+
+        {% if causa_abierta and usuario.perfil.nombre == "Asistente Administrativo" %}
+
+            {% if sesiones_pendientes|length > 1 %}
+                <div class="mensaje error">
+                    Esta causa tiene más de una sesión pendiente. No se puede realizar otro agendamiento hasta revisar esos registros.
+                </div>
+
+            {% elif sesion_pendiente %}
+                <h3>Modificar sesión pendiente</h3>
+
+                <div class="informacion">
+                    Existe una sesión pendiente de realización.
+                    Puedes modificar su fecha y hora. El sistema actualizará el mismo registro.
+                </div>
+
+                <form method="post" class="formulario">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="modificar_agendamiento">
+                    <input type="hidden" name="sesion_id" value="{{ sesion_pendiente.id }}">
+
+                    <div class="campo">
+                        <label for="fecha_agenda">Fecha de mediacion</label>
+                        <input
+                            type="date"
+                            id="fecha_agenda"
+                            name="fecha_agenda"
+                            value="{{ sesion_pendiente.fecha|date:'Y-m-d' }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="hora_sesion">Bloque horario</label>
+                        <select id="hora_sesion" name="hora_sesion" required>
+                            <option value="">Seleccionar horario</option>
+                            <option value="09:00" {% if sesion_pendiente.hora_sesion == "09:00" %}selected{% endif %}>09:00 - 10:30</option>
+                            <option value="10:30" {% if sesion_pendiente.hora_sesion == "10:30" %}selected{% endif %}>10:30 - 12:00</option>
+                            <option value="12:00" {% if sesion_pendiente.hora_sesion == "12:00" %}selected{% endif %}>12:00 - 13:30</option>
+                            <option value="13:30" {% if sesion_pendiente.hora_sesion == "13:30" %}selected{% endif %}>13:30 - 15:00</option>
+                            <option value="15:00" {% if sesion_pendiente.hora_sesion == "15:00" %}selected{% endif %}>15:00 - 16:30</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="boton boton-confirmar">
+                        Guardar cambios del agendamiento
+                    </button>
+                </form>
+
+            {% else %}
+                <h3>Agendar nueva sesión</h3>
+
+                <div class="informacion">
+                    No existe una sesión pendiente. Puedes registrar una nueva sesión de mediación.
+                </div>
+
+                <form method="post" class="formulario">
+                    {% csrf_token %}
+                    <input type="hidden" name="accion" value="guardar_agendamiento">
+
+                    <div class="campo">
+                        <label for="fecha_agenda">Fecha de mediacion</label>
+                        <input
+                            type="date"
+                            id="fecha_agenda"
+                            name="fecha_agenda"
+                            required
+                        >
+                    </div>
+
+                    <div class="campo">
+                        <label for="hora_sesion">Bloque horario</label>
+                        <select id="hora_sesion" name="hora_sesion" required>
+                            <option value="">Seleccionar horario</option>
+                            <option value="09:00">09:00 - 10:30</option>
+                            <option value="10:30">10:30 - 12:00</option>
+                            <option value="12:00">12:00 - 13:30</option>
+                            <option value="13:30">13:30 - 15:00</option>
+                            <option value="15:00">15:00 - 16:30</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="boton boton-confirmar">
+                        Guardar agendamiento
+                    </button>
+                </form>
+            {% endif %}
+
+        {% elif not causa_abierta %}
+            <p class="vacio">
+                La causa está cerrada. No se pueden modificar ni registrar agendamientos.
+            </p>
+        {% else %}
+            <p class="vacio">
+                El perfil Mediador puede consultar los agendamientos, pero no registrar ni modificar sesiones.
+            </p>
+        {% endif %}
+
+        <h3 style="margin-top: 30px;">Historial de sesiones de mediacion</h3>
+
+        {% if sesiones_causa %}
+            {% for sesion in sesiones_causa %}
+                <div class="informacion">
+                    <strong>Fecha:</strong> {{ sesion.fecha|date:"d/m/Y" }}<br>
+                    <strong>Hora:</strong> {{ sesion.hora_sesion }}<br>
+                    <strong>Duracion:</strong> 1 hora y 30 minutos<br>
+                    <strong>Estado:</strong>
+                    {% if sesion.realizada %}
+                        <span class="estado-sesion estado-realizada">Realizada</span>
+                    {% else %}
+                        <span class="estado-sesion estado-pendiente">Pendiente</span>
+                    {% endif %}
+                </div>
+
+                <h4 style="color: #24476b;">Registro de asistencia</h4>
+
+                {% for relacion in participantes_causa %}
+                    <div class="asistencia-participante">
+                        <h4>
+                            {{ relacion.participante.nombre }}
+                            {{ relacion.participante.apellido }}
+                            ({{ relacion.rol }})
+                        </h4>
+
+                        <p>
+                            <strong>RUT:</strong> {{ relacion.participante.rut }}
+                        </p>
+
+                        {% for asistencia in sesion.asistencias_registradas %}
+                            {% if asistencia.participante.rut == relacion.participante.rut %}
+                                <p>
+                                    <strong>Asistencia registrada:</strong>
+                                    {% if asistencia.estado == "S" %}
+                                        Asistió
+                                    {% elif asistencia.estado == "N" %}
+                                        No asistió
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if causa_abierta and usuario.perfil.nombre == "Asistente Administrativo" and not sesion.realizada %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="accion" value="registrar_asistencia">
+                                <input type="hidden" name="sesion_id" value="{{ sesion.id }}">
+                                <input type="hidden" name="participante_rut" value="{{ relacion.participante.rut }}">
+
+                                <label for="asistencia-{{ sesion.id }}-{{ forloop.counter }}">
+                                    Registrar asistencia:
+                                </label>
+
+                                <select
+                                    id="asistencia-{{ sesion.id }}-{{ forloop.counter }}"
+                                    name="estado_asistencia"
+                                    required
+                                >
+                                    <option value="">Seleccionar</option>
+                                    <option value="S">Asistió</option>
+                                    <option value="N">No asistió</option>
+                                </select>
+
+                                <button type="submit" class="boton boton-confirmar">
+                                    Guardar asistencia
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p class="vacio">Esta causa todavía no tiene sesiones de mediación registradas.</p>
+        {% endif %}
+    </section>
+
+    <section id="documentos" class="contenido-pestana">
+        <h3>Documentos de la causa</h3>
+
+        {% if documentos_causa %}
+            {% for documento in documentos_causa %}
+                <article class="documento">
+                    <div class="documento-encabezado">
+                        <h2>MEDFA</h2>
+                        <p>Sistema de gestión de causas de mediación familiar</p>
+                    </div>
+
+                    <span class="documento-etiqueta">DOCUMENTO REGISTRADO</span>
+
+                    <h3>{{ documento.tipo_documento.nombre }}</h3>
+
+                    <table class="documento-datos">
+                        <tbody>
+                            <tr>
+                                <td>Número de identificación de causa (NIC)</td>
+                                <td>{{ causa.nic }}</td>
+                            </tr>
+                            <tr>
+                                <td>Fecha de ingreso</td>
+                                <td>{{ causa.fecha_ingreso|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td>Fecha de registro del documento</td>
+                                <td>{{ documento.fecha_registro|date:"d/m/Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td>Estado de la causa</td>
+                                <td>{{ causa.estado }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    {% if documento.tipo_documento.nombre == "Declaración jurada simple del solicitante" %}
+                        <p>
+                            Mediante este documento se representa la declaración jurada simple correspondiente al participante que cumple el rol de solicitante en esta causa.
+                        </p>
+
+                        {% for relacion in participantes_causa %}
+                            {% if relacion.rol == "Solicitante" %}
+                                <table class="documento-datos">
+                                    <tbody>
+                                        <tr>
+                                            <td>Nombre</td>
+                                            <td>{{ relacion.participante.nombre }} {{ relacion.participante.apellido }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>RUT</td>
+                                            <td>{{ relacion.participante.rut }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dirección</td>
+                                            <td>{{ relacion.participante.direccion }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        {% endfor %}
+
+                    {% elif documento.tipo_documento.nombre == "Declaración jurada simple del solicitado" %}
+                        <p>
+                            Mediante este documento se representa la declaración jurada simple correspondiente al participante que cumple el rol de solicitado en esta causa.
+                        </p>
+
+                        {% for relacion in participantes_causa %}
+                            {% if relacion.rol == "Solicitado" %}
+                                <table class="documento-datos">
+                                    <tbody>
+                                        <tr>
+                                            <td>Nombre</td>
+                                            <td>{{ relacion.participante.nombre }} {{ relacion.participante.apellido }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>RUT</td>
+                                            <td>{{ relacion.participante.rut }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dirección</td>
+                                            <td>{{ relacion.participante.direccion }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        {% endfor %}
+
+                    {% elif documento.tipo_documento.nombre == "Formulario de ingreso espontáneo" %}
+                        <p>
+                            Este documento representa el formulario de ingreso espontáneo asociado al registro de la causa.
+                        </p>
+
+                        <p><strong>Participantes de la causa:</strong></p>
+
+                        <table class="documento-datos">
+                            <tbody>
+                                {% for relacion in participantes_causa %}
+                                    <tr>
+                                        <td>{{ relacion.rol }}</td>
+                                        <td>
+                                            {{ relacion.participante.nombre }}
+                                            {{ relacion.participante.apellido }}
+                                            - {{ relacion.participante.rut }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <p><strong>Materias registradas:</strong></p>
+
+                        {% for relacion in materias_causa %}
+                            <p>{{ relacion.materia.tipo }}</p>
+                        {% empty %}
+                            <p>No hay materias registradas.</p>
+                        {% endfor %}
+
+                    {% elif documento.tipo_documento.nombre == "Consentimiento informado" %}
+                        <p>
+                            Este documento representa el consentimiento informado asociado al procedimiento de mediación de esta causa.
+                        </p>
+
+                        <p><strong>Participantes:</strong></p>
+
+                        <table class="documento-datos">
+                            <tbody>
+                                {% for relacion in participantes_causa %}
+                                    <tr>
+                                        <td>{{ relacion.rol }}</td>
+                                        <td>
+                                            {{ relacion.participante.nombre }}
+                                            {{ relacion.participante.apellido }}
+                                            - {{ relacion.participante.rut }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                    <div class="documento-firma">
+                        {% for relacion in participantes_causa %}
+                            <div class="firma">
+                                {{ relacion.participante.nombre }}
+                                {{ relacion.participante.apellido }}<br>
+                                {{ relacion.rol }}<br>
+                                RUT: {{ relacion.participante.rut }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="documento-pie">
+                        Representación visual del documento registrado en MEDFA.
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <p class="vacio">
+                Esta causa todavía no tiene documentos registrados.
+            </p>
+        {% endif %}
+    </section>
+
+</main>
+
+<script>
+    const botonesPestanas = document.querySelectorAll(".pestana");
+    const contenidosPestanas = document.querySelectorAll(".contenido-pestana");
+
+    botonesPestanas.forEach(boton => {
+        boton.addEventListener("click", () => {
+            const pestanaSeleccionada = boton.dataset.pestana;
+
+            botonesPestanas.forEach(elemento => {
+                elemento.classList.remove("activa");
+            });
+
+            contenidosPestanas.forEach(elemento => {
+                elemento.classList.remove("activo");
+            });
+
+            boton.classList.add("activa");
+            document.getElementById(pestanaSeleccionada).classList.add("activo");
+        });
+    });
+
+    const botonSelectorMaterias = document.getElementById("boton-selector-materias");
+    const opcionesMaterias = document.getElementById("opciones-materias");
+    const contenedorMateriasSeleccionadas = document.getElementById("materias-seleccionadas");
+
+    if (botonSelectorMaterias && opcionesMaterias && contenedorMateriasSeleccionadas) {
+        const opciones = opcionesMaterias.querySelectorAll(".opcion-materia");
+
+        function actualizarMateriasSeleccionadas() {
+            contenedorMateriasSeleccionadas.innerHTML = "";
+
+            const nombresSeleccionados = [];
+
+            opciones.forEach(opcion => {
+                if (opcion.classList.contains("seleccionada")) {
+                    const campo = document.createElement("input");
+                    campo.type = "hidden";
+                    campo.name = "materias";
+                    campo.value = opcion.dataset.value;
+
+                    contenedorMateriasSeleccionadas.appendChild(campo);
+                    nombresSeleccionados.push(opcion.dataset.label);
+                }
+            });
+
+            botonSelectorMaterias.textContent = nombresSeleccionados.length > 0
+                ? nombresSeleccionados.join(", ")
+                : "Elija entre las opciones";
+        }
+
+        botonSelectorMaterias.addEventListener("click", () => {
+            const abierto = opcionesMaterias.classList.toggle("abierto");
+            botonSelectorMaterias.setAttribute("aria-expanded", abierto);
+        });
+
+        opciones.forEach(opcion => {
+            opcion.addEventListener("click", () => {
+                const seleccionada = opcion.classList.toggle("seleccionada");
+                opcion.setAttribute("aria-pressed", seleccionada);
+                actualizarMateriasSeleccionadas();
+            });
+        });
+
+        document.addEventListener("click", evento => {
+            if (!evento.target.closest(".selector-materias")) {
+                opcionesMaterias.classList.remove("abierto");
+                botonSelectorMaterias.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        actualizarMateriasSeleccionadas();
+    }
+
+    document.querySelectorAll(".boton-actualizar").forEach(boton => {
+        boton.addEventListener("click", () => {
+            const idFormulario = boton.dataset.formulario;
+            const formulario = document.getElementById(idFormulario);
+
+            if (formulario) {
+                formulario.classList.toggle("abierto");
+            }
+        });
+    });
+
+    const fechaAgenda = document.getElementById("fecha_agenda");
+
+    if (fechaAgenda) {
+        fechaAgenda.addEventListener("change", function () {
+            if (!this.value) {
+                return;
+            }
+
+            const fecha = new Date(this.value + "T12:00:00");
+            const dia = fecha.getDay();
+
+            if (dia === 0 || dia === 6) {
+                alert("Las mediaciones solamente se pueden agendar de lunes a viernes.");
+                this.value = "";
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
